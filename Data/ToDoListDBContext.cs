@@ -22,12 +22,6 @@ namespace ToDoList.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
         
-            modelBuilder
-                .Entity<TodoTask>()
-                .HasOne(t => t.User)
-                .WithOne()
-                .HasForeignKey<TodoTask>(t => t.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
         }
 
     }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ToDoList.Data;
 using ToDoList.Models;
@@ -21,13 +20,25 @@ namespace ToDoList.Controllers
         }
 
         // GET: api/todos
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<TodoTask>>> GetTodos(Guid id)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<TodoTask>>> GetTodos()
         {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            var id = userIdClaim.Value;
+
+            if (_database.Users.FirstOrDefault(u => u.UserId.ToString() == id) == null)
+            {
+                return NotFound();
+            }
 
             var userTasks = await _database.TodoTasks
-                .Include(task => task.User)
-                .Where(task => task.UserId == id)
+                .Where(task => task.UserId.ToString() == id && task.IsCompleted == false)
                 .ToListAsync();
 
             return userTasks;
@@ -37,15 +48,20 @@ namespace ToDoList.Controllers
         [HttpPost]
         public ActionResult<TodoTask> AddTodo([FromBody] TaskModel task)
         {
-            var username = HttpContext.User.Identity!.Name;
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!;
+            var id = userIdClaim.Value;
+            var user = _database.Users.FirstOrDefault(u => u.UserId.ToString() == id);
 
-            var user = _database.Users.FirstOrDefault(u => u.Username == username);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
 
             var todo = new TodoTask
             {
                 Title = task.Title,
                 Description = task.Description,
-                UserId = user.UserId
+                UserId = user.UserId,
             };
 
             _database.TodoTasks.Add(todo);
@@ -65,7 +81,7 @@ namespace ToDoList.Controllers
                 todoToUpdate.CompletedAt = DateTime.Now;
                 _database.TodoTasks.Update(todoToUpdate);
                 _database.SaveChanges();
-                return Ok(todoToUpdate);
+                return DeleteTask(id);
             }
 
             return NotFound();

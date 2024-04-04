@@ -11,7 +11,7 @@ namespace ToDoList.Models
         public Guid Id { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(100)] 
         public string Title { get; set; }
 
         [Required]
@@ -27,9 +27,7 @@ namespace ToDoList.Models
         public DateTime? CompletedAt { get; set; }
 
         [Required]
+        [ForeignKey("User")]
         public Guid UserId { get; set; }
-
-        [ForeignKey("UserId")]
-        public virtual User? User { get; set; }
     }
 }
