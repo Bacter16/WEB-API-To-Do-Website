@@ -1,6 +1,6 @@
 # Todo List Backend
 
-Welcome to the Todo List Backend! This ASP.NET Core Web API serves as the backend for the Todo List Website, providing authentication and task management functionality.
+Welcome to the TodoList Backend! This ASP.NET Core Web API serves as the backend for the Todo List Website, providing authentication and task management functionality.
 
 ## Features
 
@@ -32,8 +32,7 @@ This backend API uses JWT for authentication. When a user successfully logs in, 
 
 ### Task Actions
 
-- `GET /api/tasks`: Retrieve all tasks.
-- `GET /api/tasks/{id}`: Retrieve a specific task by ID.
+- `GET /api/tasks`: Retrieve all tasks of a user.
 - `POST /api/tasks`: Create a new task.
 - `PUT /api/tasks/{id}`: Update an existing task.
 - `DELETE /api/tasks/{id}`: Delete a task by ID.
